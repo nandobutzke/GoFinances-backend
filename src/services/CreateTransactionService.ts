@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import { response } from 'express';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import Transaction from '../models/Transaction';
 
@@ -16,6 +16,12 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: Request): Transaction {
+    const balance = this.transactionsRepository.getBalance();
+
+    if (type === 'outcome' && value > balance.total) {
+      throw new Error('You dont have money to do this');
+    }
+
     const transaction = this.transactionsRepository.create({
       title,
       value,

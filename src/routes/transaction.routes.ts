@@ -11,17 +11,29 @@ transactionRouter.get('/', (request, response) => {
   try {
     const transactionsList = transactionsRepository.all();
 
-    const { income, outcome, total } = request.query;
+    /* const { income, outcome, total } = request.query; */
 
-    const balance = transactionsRepository.getBalance({
-      income,
-      outcome,
-      total,
-    });
+    /* {
+      income: Number(income),
+      outcome: Number(outcome),
+      total: Number(total),
+    } */
+
+    const balance = transactionsRepository.getBalance();
+
+    /* transactionsList.map(transaction => {
+      if (transaction.type === 'outcome') {
+        if (transaction.value > balance.total) {
+          return response.status(400).json({ error: 'Error message' });
+        }
+      }
+
+      return balance;
+    }); */
 
     return response.status(200).json({
       transactions: transactionsList,
-      balance: balance,
+      balance,
     });
   } catch (err) {
     return response.status(400).json({ error: err.message });

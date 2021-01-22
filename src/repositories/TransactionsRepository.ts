@@ -23,8 +23,32 @@ class TransactionsRepository {
     return this.transactions;
   }
 
-  public getBalance({ income, outcome, total }: Balance): Balance {
-    const transactionOutcome = this.transactions.map(transaction => {
+  // { income, outcome, total }: Balance
+
+  public getBalance(): Balance {
+    const { income, outcome } = this.transactions.reduce(
+      (accumulator: Balance, transaction: Transaction) => {
+        switch (transaction.type) {
+          case 'income':
+            accumulator.income += transaction.value;
+            break;
+          case 'outcome':
+            accumulator.outcome += transaction.value;
+            break;
+          default:
+            break;
+        }
+
+        return accumulator;
+      },
+      {
+        income: 0,
+        outcome: 0,
+        total: 0,
+      },
+    );
+
+    /* const transactionOutcome = this.transactions.map(transaction => {
       if (transaction.type === 'outcome') {
         return transaction.value;
       }
@@ -52,12 +76,17 @@ class TransactionsRepository {
       income: incomeResult,
       outcome: outcomeResult,
       total: incomeResult - outcomeResult,
-    };
+    }; */
 
-    return balance;
+    const total = income - outcome;
+
+    return { income, outcome, total };
   }
 
   public create({ title, value, type }: CreatedTransactionDTO): Transaction {
+    if (!['income', 'outcome'].includes(type)) {
+      throw new Error('This type is invalid!');
+    }
     const transaction = new Transaction({ title, value, type });
 
     this.transactions.push(transaction);
